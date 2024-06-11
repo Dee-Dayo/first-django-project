@@ -6,8 +6,8 @@ from django.shortcuts import render
 
 
 def say_hello(request):
-    return HttpResponse('Hello World!')
+    return HttpResponse("Hello world")
 
 
 def welcome(request, name):
-    return HttpResponse(f"Welcome {name}")
+    return render(request, 'index.html', {"name": name})
