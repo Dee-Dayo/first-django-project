@@ -1,5 +1,6 @@
 from django.db import models
 from .utility import generate_account_number
+from .validators import validate_pin
 
 
 # Create your models here.
@@ -8,8 +9,8 @@ class Account(models.Model):
     account_number = models.CharField(max_length=10, default=generate_account_number, unique=True, primary_key=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    pin = models.CharField(max_length=4)
-    balance = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
+    pin = models.CharField(max_length=4, validators=[validate_pin])
+    balance = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
     ACCOUNT_TYPE = [
         ('S', 'SAVINGS'),
         ('C', 'CURRENT'),
@@ -32,9 +33,9 @@ class Transaction(models.Model):
         ('F', 'FAIL'),
         ('P', 'PENDING'),
     ]
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='transactions')
     transaction_type = models.CharField(max_length=3, choices=TRANSACTION_TYPE, default='CRE')
     transaction_time = models.DateTimeField(auto_now=True)
-    amount = models.DecimalField(max_digits=6, decimal_places=2)
-    description = models.TextField()
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    description = models.TextField(blank=True, null=True)
     transaction_status = models.CharField(max_length=1, choices=TRANSACTION_STATUS, default='S')
