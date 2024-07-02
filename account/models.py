@@ -9,7 +9,7 @@ from django.conf import settings
 class Account(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     account_number = models.CharField(max_length=10, default=generate_account_number, unique=True, primary_key=True)
-    pin = models.CharField(max_length=4, validators=[validate_pin])
+    pin = models.CharField(max_length=4, validators=[validate_pin], default='0000')
     balance = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
     ACCOUNT_TYPE = [
         ('S', 'SAVINGS'),
@@ -18,8 +18,11 @@ class Account(models.Model):
     ]
     account_type = models.CharField(max_length=1, choices=ACCOUNT_TYPE, default='S')
 
-    def __str__(self):
-        return f"{self.first_name} {self.last_name} {self.account_type} {self.balance}"
+    def get_first_name(self):
+        return self.user.first_name
+
+    def get_last_name(self):
+        return self.user.last_name
 
 
 class Transaction(models.Model):

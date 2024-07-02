@@ -7,8 +7,8 @@ from .models import Account
 @admin.register(Account)
 class AccountAdmin(admin.ModelAdmin):
     pass
-    # list_display = ['account_number', 'first_name', 'last_name', 'account_type', 'balance']
-    # list_per_page = 10
+    list_display = ['account_number', 'get_first_name', 'get_last_name', 'account_type', 'balance']
+    list_per_page = 10
     # search_fields = ['account_number', 'first_name', 'last_name']
-    # list_editable = ['first_name', 'last_name', 'account_type']
+    list_editable = ['account_type']
 

@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
@@ -15,6 +15,9 @@ from rest_framework import status
 
 
 # Create your views here.
+
+# API view if you want to do custom post and all, Mixin when u want to do list and create
+# viewset has all in 1
 
 class AccountViewSet(ModelViewSet):
     queryset = Account.objects.all()
@@ -63,6 +66,7 @@ class Withdraw(APIView):
                 return Response(data={"message": "Insufficient balance"}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(data={"message": "Incorrect pin"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 # class ListAccount(ListCreateAPIView):
