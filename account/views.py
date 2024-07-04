@@ -10,7 +10,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from .models import Account
 from .models import Transaction
-from .serializers import AccountSerializer, AccountCreateSerializer
+from .serializers import AccountSerializer, AccountCreateSerializer, DepositSerializer, WithdrawSerializer
 from rest_framework import status
 
 
@@ -27,26 +27,36 @@ class AccountViewSet(ModelViewSet):
 class Deposit(APIView):
 
     def post(self, request):
-        account_number = request.data['account_number']
+        serializer = DepositSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        account_number = serializer.data['account_number']
         amount = Decimal(request.data['amount'])
+        transaction_details = {}
         account = get_object_or_404(Account, pk=account_number)
-        account.balance += amount
-        account.save()
+        balance = account.balance
+        balance += amount
+        Account.objects.filter(account_number=account_number).update(balance=balance)
 
         Transaction.objects.create(
             account=account,
             amount=amount
         )
+        transaction_details['account_number'] = account_number
+        transaction_details['amount'] = amount
+        transaction_details['transaction_type'] = 'CREDIT'
 
-        return Response(data={"message": "Transaction successful"}, status=status.HTTP_200_OK)
+        return Response(data=transaction_details, status=status.HTTP_200_OK)
 
 
 class Withdraw(APIView):
 
     def patch(self, request):
+        serializer = WithdrawSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         account_number = request.data['account_number']
         amount = Decimal(request.data['amount'])
         pin = request.data['pin']
+        transaction_details = {}
         account = get_object_or_404(Account, pk=account_number)
 
         if account.pin == pin:
@@ -60,8 +70,11 @@ class Withdraw(APIView):
                     amount=amount,
                     transaction_status='S'
                 )
+                transaction_details['account_number'] = account_number
+                transaction_details['amount'] = amount
+                transaction_details['transaction_type'] = 'DEBIT'
 
-                return Response(data={"message": "Withdraw successful"}, status=status.HTTP_200_OK)
+                return Response(data=transaction_details, status=status.HTTP_200_OK)
             else:
                 return Response(data={"message": "Insufficient balance"}, status=status.HTTP_400_BAD_REQUEST)
         else:
